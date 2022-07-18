@@ -111,8 +111,11 @@ negative sampling实际上试图以更高效的方式完成softmax目标函数�
 ![image-20220717123129854](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220717123129854.png)
 
 - 基于COUNT的方法：训练快速，有效利用了语料库的统计信息（已经获取了一个词和全部词的共现情况了，可以无噪声地，更高效地训练）。但其最初是被用来建模单词相似度的，并且可能不正确地较大的counts以较大的重要度
+  - eg:在word analygy任务中**表现很差**
 
-- 基于Prediction的方法：没有充分利用统计信息（仅在窗口内sample不同的words），训练较慢。但在不同任务上性能很优，能捕捉更多复杂的语义模式(除了单词相似性之外的)
+- 基于Prediction的方法：没有充分利用统计信息（仅在窗口内sample不同的words），训练较慢。但在不同任务上性能很优，能捕捉更多复杂的语义模式(除了单词相似性之外的)。
+  - eg:在word analygy任务中**表现优异**
+
 
 ### Encoding meaning components in vector diffrence
 
