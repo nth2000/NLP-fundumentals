@@ -106,7 +106,7 @@ negative sampling实际上试图以更高效的方式完成softmax目标函数�
 
 - 动词->到做该动词的人。大致平行且大小相同
 
-## Glove词向量：Count Based + Direct Prediction
+## Glove词向量：Count Based + Direct Prediction（context-based）
 
 ![image-20220717123129854](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220717123129854.png)
 
