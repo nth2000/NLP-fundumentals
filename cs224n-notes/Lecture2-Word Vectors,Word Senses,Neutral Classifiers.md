@@ -110,18 +110,26 @@ negative sampling实际上试图以更高效的方式完成softmax目标函数�
 
 ![image-20220717123129854](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220717123129854.png)
 
-- 基于COUNT的方法：训练快速，有效利用了语料库的统计信息（已经获取了一个词和全部词的共现情况了，可以无噪声地，更高效地训练）。但其最初是被用来建模单词相似度的，并且可能不正确地较大的counts以较大的重要度
+- 基于COUNT的方法（**基于矩阵分解的思路**）：训练快速，有效利用了语料库的统计信息（已经获取了一个词和全部词的共现情况了，可以无噪声地，更高效地训练）。但其最初是被用来建模单词相似度的，并且可能不正确地较大的counts以较大的重要度(例如和the,and,to等共现的词语可能被模型认为具有较高相似性)
   - eg:在word analygy任务中**表现很差**
 
-- 基于Prediction的方法：没有充分利用统计信息（仅在窗口内sample不同的words），训练较慢。但在不同任务上性能很优，能捕捉更多复杂的语义模式(除了单词相似性之外的)。
+- 基于Prediction的方法（**基于local context window的方法**）：没有充分利用统计信息（仅在窗口内sample不同的words），训练较慢。但在不同任务上性能很优，能捕捉更多复杂的语义模式(除了单词相似性之外的)。
   - eg:在word analygy任务中**表现优异**
 
 
 ### Encoding meaning components in vector diffrence
 
+引入一些记号：
+
+- $X_{ij}$，j在i作为中心词的上下文中出现的次数。
+- $X_i = \sum_k {X_{ik}}$,即单词i所有上下文中所有单词的出现次数
+- $P_{ij} = P(j|i) = \frac{X_{ij}}{X_i}$，给定中心单词i的条件下，单词j出现的概率
+
+**问题：**语料库中共现统计量能够如何表示语义？
+
 **关键一点：**共现概率的比值能编码meaning components
 
-**meaning components**:使得man-king,woman-queen,从动词到做该动作的人或物的抽象。
+**meaning components**:使得man-king,woman-queen,从动词到做该动作的人或物的语义抽象。
 
 、![image-20220717125854449](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220717125854449.png)
 
@@ -131,7 +139,9 @@ negative sampling实际上试图以更高效的方式完成softmax目标函数�
 
 如图所示，从第一行可看出，ice和solid较多共现，因此$p(x|ice)$概率较高，使用红色表示。ice与gas较少共线，因此$p(x|ice)$较低。以此类推。第二行和第三行填法同理。
 
-欲求solid和gas之间的meaning components,发现在第三行中，分别使用solid和gas计算造成的比值一个较大，一个较小，说明solid和gas正好能清楚ice和stream的语义差别。而对于water和random而言，与ice,steam的共现概率都较大或都较小。因此共现概率的比率接近于1.
+欲求solid和gas之间的meaning components,发现在第三行中，分别使用solid和gas计算造成的比值一个较大，一个较小，**说明比率能够解释solid和gas之间的语义差别**。
+
+而对于water和random而言，与ice,steam的共现概率都较大或都较小。因此共现概率的比率接近于1.根据共现概率比值不能区分。
 
 **Q：How can we capture ratios of co-occur prob as linear meaning components in a word vector space?**
 
@@ -150,6 +160,7 @@ $$
 - 训练速度快
 - 适应大型语料库
 - 即使在小型语料库，小型vector中也能表现很好
+- 充分利用了统计量：即考虑了全局word-word co-occurence counts
 
 ## 词向量评估
 
@@ -221,4 +232,92 @@ $$
 在高维空间中，向量是稀疏的，可以根据**稀疏编码的思想**分离出三个components:
 
 ![image-20220717152051017](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220717152051017.png)
+
+## Appendix-Glove词向量的推导和讨论
+
+**参考文献：glove原始论文:**_**GloVe: Global Vectors for Word Representation**_
+
+### Glove模型推导
+
+引入一些记号：
+
+- $X_{ij}$，j在i作为中心词的上下文中出现的次数。
+- $X_i = \sum_k {X_{ik}}$,即单词i所有上下文中所有单词的出现次数
+- $P_{ij} = P(j|i) = \frac{X_{ij}}{X_i}$，给定中心单词i的条件下，单词j出现的概率
+
+设单词$i,j$的词向量$w_i,w_j$，设单词k的词向量$\tilde w_k$。给定i,j的条件下，需要使用这三个词向量的一个函数来表示$\frac{P_{ik}}{P_{jk}}$。即：
+$$
+F(w_i,w_j,\tilde w_k) = \frac{P_{ik}}{P_{jk}}
+$$
+F需要在向量空间中编码$\frac{P_{ik}}{P_{jk}}$。并且在直观上，$\frac{P_{ik}}{P_{jk}}$的大小取决于单词i,j的语义之差，以及单词k是否能够将此语义之差体现出来（eg：单词water不能体现ice和steam的语义差，但是steam可以体现ice和steam的语义差）。于是我们的搜索空间仅限于自变量是$i,j$向量之差和单词k的函数，即：
+$$
+F(w_i - w_j,\tilde w_k) = \frac{P_{ik}}{P_{jk}}
+$$
+注意上式右侧为**标量**。尽管可以使用神经网络等工具将向量映射到标量，但是这里为了保留**需要捕捉的线性结构**，进一步假设自变量为$(w_i - w_j)^T w_k$的值：
+$$
+F((w_i - w_j)^T \tilde w_k) =\frac{P_{ik}}{P_{jk}} \quad \Delta
+$$
+为了保留i,j,k的对称性，进一步假设：
+$$
+F(w_i^T\tilde w_k) = P_{ik}
+$$
+这样$\Delta$式变为：
+$$
+F((w_i - w_j)^T \tilde w_k) = \frac{F(w_i^T \tilde w_k)}{F(w_j^T \tilde w_k)} \quad *
+$$
+其中$F(w_i^T \tilde w_k) = P_{ik}  = \frac{X_{ik}}{X_i}$
+
+*式是一个微分方程。解这个微分方程得到$F = exp$.于是就有：
+$$
+exp(w_i^T\tilde w_k) = \frac{X_{ik}}{X_i}
+$$
+即：
+$$
+w_i^T\tilde w_k = \log X_{ik} - \log X_i
+$$
+上式还是不具有对称性。$X_i$和k是独立的，使用一个偏置量$b_i$来代替$\log X_i$。
+
+同时为保留对称性，为上式右侧加上$\tilde b_k$。于是等式变为：
+$$
+w_i^T \tilde w_k = \log X_{ik} + b_i + \tilde b_k
+$$
+即对一对单词i,k而言，**应尽可能满足上式，才能满足近似具有*式所满足的条件**。但是对于不同单词对(i,k)，他们出现次数的不同应该对结果影响权重不同。较小出现的(i,k)对如果具有较大权重会引入较大噪声，因此定义权值函数$f(X_{ij})$来加权。最终目标函数为所有单词对加权误差损失的总和：
+
+![image-20210718192558036](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20210718192558036.png)
+
+文献实验表明如下的函数work最好：
+
+![image-20210718192739841](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20210718192739841.png)
+
+![image-20210718192745583](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20210718192745583.png)
+
+### 与其他模型的关联
+
+给定中心单词i，在skip-gram模型中,单词j出现在单词i的上下文的概率:
+$$
+Q_{ij} = \frac{exp(w_i^T \tilde w_j)}{\sum_k exp(w_i^T \tilde w_k)}
+$$
+损失函数为负对数似然：
+$$
+J = -\sum_{i \in corpus ,j \in context(i)} \log Q_{ij}
+$$
+将所有具有i,j的项聚合到一起，$X_{ij}$为语料中以i为窗口,j出现的次数。上式子等价于：
+$$
+J = -\sum_{i,j} X_{ij} \log Q_{ij} = \sum_i X_i \sum_j P_{ij} \log Q_{ij} = \sum_i X_i H(P_i,Q_i)
+$$
+其中$H(\cdot,\cdot)$衡量了两个分布（给定中心词i的上下文词j的分布）的熵值。
+
+熵值是两个分布距离的度量，这里将其换作平方距离，并且不归一化常数：
+
+![image-20220718220626134](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220718220626134.png)
+
+其中$\hat P_{ij} = X_{ij},\hat Q_{ij} = exp(w_i^T\tilde w_j)$。这时候$X_{ij}$很大，有可能还会导致优化难以进行，因此取对数：
+
+![image-20220718220747566](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220718220747566.png)
+
+减少一些停用词（过大的$X_i$的影响）。对权值函数进行修改：
+
+![image-20220718220939038](Lecture2-Word Vectors,Word Senses,Neutral Classifiers.assets/image-20220718220939038.png)
+
+### 计算复杂度分析
 
