@@ -168,7 +168,27 @@ class CharCorruptionDataset(Dataset):
 
     def __getitem__(self, idx):
         # TODO [part e]: see spec above
-        raise NotImplementedError
+        document = self.data[idx]
+        len_ =  random.randint(4,min(len(document),int(self.block_size * 7 / 8)))
+        document = document[:len_]
+        mu  = int(0.25*len(document))
+        mask_len = random.randint(int(0.5*mu),int(1.5*mu))
+        assert mask_len <= len(document)
+        mask_start = random.randint(1,len(document) - mask_len - 1)
+        prefix,masked_content,suffix = document[:mask_start],document[mask_start:mask_start + mask_len],document[mask_start + mask_len:]
+        assert len(prefix) + len(masked_content) + len(suffix) == len(document)
+        assert len(prefix) > 0 and len(masked_content) > 0 and len(suffix) > 0
+        masked_string = prefix + self.MASK_CHAR + suffix + self.MASK_CHAR + masked_content
+        pad_len = self.block_size - len(masked_string) + 1
+        for i in range(pad_len): masked_string += self.PAD_CHAR
+        x = masked_string[:-1]  #去除最后一个character
+        y = masked_string[1:]   #去除第一个character
+        x = torch.tensor([self.stoi[z] for z in x])
+        y = torch.tensor([self.stoi[z] for z in y])
+        assert len(x) == self.block_size and len(y) == self.block_size
+        return x,y
+
+
 
 """
 Code under here is strictly for your debugging purposes; feel free to modify
@@ -193,7 +213,7 @@ if __name__ == '__main__':
             print('y:', ''.join([name_dataset.itos[int(c)] for c in y]))
         pass
     elif args.dataset_type == 'charcorruption':
-        corruption_dataset = CharCorruptionDataset(open('wiki.txt').read(), 128) 
+        corruption_dataset = CharCorruptionDataset(open('wiki.txt',encoding='utf-8').read(), 128)
         for _, example in zip(range(4), corruption_dataset):
             x, y = example
             print('x:', ''.join([corruption_dataset.itos[int(c)] for c in x]))

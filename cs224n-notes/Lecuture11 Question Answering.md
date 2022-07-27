@@ -32,3 +32,23 @@
 
 ## Reading Comprehension
 
+（P,Q）-> A.其中P是一段文本，Q是问题，给出一个答案
+
+- 阅读理解是一个重要的testbed，衡量**计算机系统理解人类语言的能力**
+
+![image-20220727180632164](Lecuture11 Question Answering.assets/image-20220727180632164.png)
+
+- 许多NLP任务能够被规约为阅读理解问题：
+
+![image-20220727180837720](Lecuture11 Question Answering.assets/image-20220727180837720.png)
+
+**斯坦福SQUAD数据集**
+
+问题采用众包方式获取，语料从英文维基百科获取。每个问题的答案是原文中的一个span。数据集采用的评估策略为exact match（精确匹配）和F1值。
+
+评估模型预测每个答案和每个gold answer的分数情况（EM和F1分数都计算），并取最大值。
+
+并将预测每个答案得到的分数作平均得结果。
+
+
+

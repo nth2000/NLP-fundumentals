@@ -84,6 +84,12 @@ if args.function == 'pretrain':
     #     warmup_tokens=512*20
     #     final_tokens=200*len(pretrain_dataset)*block_size
     #     num_workers=4
+    train_config = trainer.TrainerConfig(max_epochs=650, batch_size=128, learning_rate=6e-3,
+                  lr_decay=True, warmup_tokens=512*20, final_tokens=200*len(pretrain_dataset)*block_size,
+                  num_workers=0)
+    Trainer = trainer.Trainer(model = model,train_dataset=pretrain_dataset,test_dataset = None,config = train_config)
+    Trainer.train()
+    torch.save(model.state_dict(), args.writing_params_path)  # 训练完成后保存模型
     raise NotImplementedError
 elif args.function == 'finetune':
     assert args.writing_params_path is not None
@@ -119,7 +125,7 @@ elif args.function == 'finetune':
     training_max_epchos = 0
     if args.reading_params_path is not None:
         training_max_epchos = 10
-        model.load_state_dict(torch.load(args.reading_params_path))
+        model.load_state_dict(torch.load(args.reading_params_path))  #预训练
         raise NotImplementedError
     else:
         training_max_epchos = 75
