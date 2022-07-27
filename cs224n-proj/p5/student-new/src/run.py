@@ -90,7 +90,7 @@ if args.function == 'pretrain':
     Trainer = trainer.Trainer(model = model,train_dataset=pretrain_dataset,test_dataset = None,config = train_config)
     Trainer.train()
     torch.save(model.state_dict(), args.writing_params_path)  # 训练完成后保存模型
-    
+
 elif args.function == 'finetune':
     assert args.writing_params_path is not None
     assert args.finetune_corpus_path is not None
