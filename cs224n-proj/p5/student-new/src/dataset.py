@@ -175,7 +175,7 @@ class CharCorruptionDataset(Dataset):
         mu  = int(0.25*len(document))
         # print("----")
         # print(mu)
-        mask_len = random.randint(max(1,int(0.5*mu)),max(int(1.5*mu),max(1,int(0.5*mu)) + 1))
+        mask_len = random.randint(max(1,int(0.5*mu)),max(int(1.5*mu),max(1,int(0.5*mu))))
         assert mask_len <= len(document)
         mask_start = random.randint(1,len(document) - mask_len - 1)
         prefix,masked_content,suffix = document[:mask_start],document[mask_start:mask_start + mask_len],document[mask_start + mask_len:]
