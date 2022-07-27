@@ -172,11 +172,17 @@ class CharCorruptionDataset(Dataset):
         len_ =  random.randint(4,min(len(document),int(self.block_size * 7 / 8)))
         document = document[:len_]
         mu  = int(0.25*len(document))
-        mask_len = random.randint(int(0.5*mu),int(1.5*mu))
+        # print("----")
+        # print(mu)
+        mask_len = random.randint(max(1,int(0.5*mu)),max(int(1.5*mu),max(1,int(0.5*mu)) + 1))
         assert mask_len <= len(document)
         mask_start = random.randint(1,len(document) - mask_len - 1)
         prefix,masked_content,suffix = document[:mask_start],document[mask_start:mask_start + mask_len],document[mask_start + mask_len:]
         assert len(prefix) + len(masked_content) + len(suffix) == len(document)
+        # print("---")
+        # print(len(prefix))
+        # print(len(masked_content))
+        # print(len(suffix))
         assert len(prefix) > 0 and len(masked_content) > 0 and len(suffix) > 0
         masked_string = prefix + self.MASK_CHAR + suffix + self.MASK_CHAR + masked_content
         pad_len = self.block_size - len(masked_string) + 1
