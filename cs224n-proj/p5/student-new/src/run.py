@@ -90,7 +90,7 @@ if args.function == 'pretrain':
     Trainer = trainer.Trainer(model = model,train_dataset=pretrain_dataset,test_dataset = None,config = train_config)
     Trainer.train()
     torch.save(model.state_dict(), args.writing_params_path)  # 训练完成后保存模型
-    raise NotImplementedError
+    
 elif args.function == 'finetune':
     assert args.writing_params_path is not None
     assert args.finetune_corpus_path is not None
@@ -126,7 +126,7 @@ elif args.function == 'finetune':
     if args.reading_params_path is not None:
         training_max_epchos = 10
         model.load_state_dict(torch.load(args.reading_params_path))  #预训练
-        raise NotImplementedError
+
     else:
         training_max_epchos = 75
     fine_tune_dataset_train = dataset.NameDataset(pretrain_dataset,
