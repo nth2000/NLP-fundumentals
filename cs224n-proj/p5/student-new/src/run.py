@@ -55,6 +55,7 @@ Don't change above here; write your code below
 
 if args.variant == 'vanilla':
     model = model.GPT(mconf)   #在默认情况下addctive=false
+    model = model.to(device)
     #pass
     # TODO [part c]: Make some model here
 elif args.variant == 'synthesizer':
