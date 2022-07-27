@@ -169,7 +169,8 @@ class CharCorruptionDataset(Dataset):
     def __getitem__(self, idx):
         # TODO [part e]: see spec above
         document = self.data[idx]
-        len_ =  random.randint(4,min(len(document),int(self.block_size * 7 / 8)))
+        len_ =  random.randint(4,int(self.block_size * 7 / 8))
+        len_ = min(len(document),len_)
         document = document[:len_]
         mu  = int(0.25*len(document))
         # print("----")
