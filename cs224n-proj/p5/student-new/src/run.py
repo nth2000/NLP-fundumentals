@@ -30,6 +30,9 @@ argp.add_argument('--finetune_corpus_path',
 argp.add_argument('--eval_corpus_path',
     help="Path of the corpus to evaluate on", default=None)
 argp.add_argument('--outputs_path', default=None)
+argp.add_argument('--pretrain_epchos',type=int,
+    help="If specified, path of the model to load before finetuning/evaluation",
+    default=650)
 args = argp.parse_args()
 
 # Save the device
@@ -83,7 +86,7 @@ if args.function == 'pretrain':
     #     warmup_tokens=512*20
     #     final_tokens=200*len(pretrain_dataset)*block_size
     #     num_workers=4
-    train_config = trainer.TrainerConfig(max_epochs=650, batch_size=128, learning_rate=6e-3,
+    train_config = trainer.TrainerConfig(max_epochs=args.pretrain_epchos, batch_size=128, learning_rate=6e-3,
                   lr_decay=True, warmup_tokens=512*20, final_tokens=200*len(pretrain_dataset)*block_size,
                   num_workers=0)
     Trainer = trainer.Trainer(model = model,train_dataset=pretrain_dataset,test_dataset = None,config = train_config)
