@@ -63,8 +63,8 @@ class SynthesizerAttention(nn.Module):
         # NEW learnable weights
         self.w1 = nn.Linear(config.n_embd, config.n_embd)
         self.w2 = nn.Parameter(torch.zeros(config.n_embd // config.n_head,
-            config.block_size-1))
-        self.b2 = nn.Parameter(torch.zeros(config.block_size-1))
+            config.block_size - 1))
+        self.b2 = nn.Parameter(torch.zeros(config.block_size  - 1 ))
         # value projection
         self.value = nn.Linear(config.n_embd, config.n_embd)
         # regularization
@@ -89,5 +89,97 @@ class SynthesizerAttention(nn.Module):
         #   - Paste over the CausalSelfAttention above and modify it minimally.
         #   - Consider especially the parameters self.w1, self.w2 and self.b2.
         #       How do these map to the matrices in the handout?
+        B, T, C = x.size()
+        assert T == self.block_size - 1
+        # calculate query, key, values for all heads in batch and move head forward to be the batch dim
+        a = self.w1(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        a = F.relu(a)
 
-        raise NotImplementedError
+        a = a @ (self.w2.view(1,1,C // self.n_head,self.block_size-1)[:,:,:,:T])
+        v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+        # causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)
+        att =  a + (self.b2.view(1,1,1,-1)[:,:,:,:T])
+
+        att = att.masked_fill(self.mask[:,:,:T,:T] == 0, -1e10) # todo: just use float('-inf') instead?
+        att = F.softmax(att, dim=-1)
+        att = self.attn_drop(att)
+        y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+        y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
+
+        # output projection
+        y = self.resid_drop(self.proj(y))
+        return y
+    # def forward(self, x, layer_past=None):
+    #     # TODO [part g]: Write your SynthesizerAttention below.
+    #     #   Do not modify __init__().
+    #     # Hints:
+    #     #   - Paste over the CausalSelfAttention above and modify it minimally.
+    #     #   - Consider especially the parameters self.w1, self.w2 and self.b2.
+    #     #       How do these map to the matrices in the handout?
+    #     B, T, C = x.size()  # bs, seq len, total embed dimension
+    #
+    #     att = self.w1(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+    #     att = F.relu(att)  # (B, nh, T, hs)
+    #     w2 = self.w2.unsqueeze(0).unsqueeze(0)[..., :T]  # (1, 1, hs, T)
+    #     att = att @ w2  # (B, nh, T, hs) x (1, 1, hs, T) -> (B, nh, T, T)
+    #     att = att + self.b2[..., :T]  # (B, nh, T, T)
+    #     att = att.masked_fill(self.mask[:, :, :T, :T] == 0, -1e10)
+    #     att = F.softmax(att, dim=-1)  # (B, nh, T, T)
+    #     att = self.attn_drop(att)  # (B, nh, T, T)
+    #
+    #     v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+    #
+    #     y = att @ v  # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+    #     y = y.transpose(1, 2).contiguous().view(B, T, C)  # re-assemble all head outputs side by side
+    #     y = self.resid_drop(self.proj(y))
+    #
+    #     return y
+    # def forward(self, x, layer_past=None):
+    #     # TODO [part g]: Write your SynthesizerAttention below.
+    #     #   Do not modify __init__().
+    #     # Hints:
+    #     #   - Paste over the CausalSelfAttention above and modify it minimally.
+    #     #   - Consider especially the parameters self.w1, self.w2 and self.b2.
+    #     #       How do these map to the matrices in the handout?
+    #     B, T, C = x.size()
+    #     v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+    #     b = self.w1(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+    #     b = F.relu(b)
+    #
+    #     # synthesizer
+    #     att = b @ self.w2[:, :T] + self.b2[:T]  # (B, nh, T, hs) x (hs, T) + (T)-> (B, nh, T, T)
+    #     # masked_fill
+    #     att = att.masked_fill(self.mask[:, :, :T, :T] == 0, -1e10)  # todo: just use float('-inf') instead?
+    #     att = F.softmax(att, dim=-1)
+    #     att = self.attn_drop(att)
+    #     y = att @ v  # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+    #     y = y.transpose(1, 2).contiguous().view(B, T, C)  # re-assemble all head outputs side by side
+    #
+    #     # output projection
+    #     y = self.resid_drop(self.proj(y))
+    #     return y
+
+    # def forward(self, x, layer_past=None):
+    #     # TODO [part g]: Write your SynthesizerAttention below.
+    #     #   Do not modify __init__().
+    #     # Hints:
+    #     #   - Paste over the CausalSelfAttention above and modify it minimally.
+    #     #   - Consider especially the parameters self.w1, self.w2 and self.b2.
+    #     #       How do these map to the matrices in the handout?
+    #
+    #     B, T, C = x.size()
+    #     v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # B, nh, T, hs
+    #
+    #     f1 = F.relu(self.w1(x).view(B, T, self.n_head, C // self.n_head)).transpose(1, 2) # B, nh, T, hs
+    #     att = f1 @ self.w2 + self.b2 # B, nh, T, T
+    #     att = att[:, :, :T, :T] # fix so that it can still run if T < block_size, not sure if it's correct ?
+    #
+    #     att = att.masked_fill(self.mask[:,:,:T,:T] == 0, -1e10) # todo: just use float('-inf') instead?
+    #     att = F.softmax(att, dim=-1)
+    #     att = self.attn_drop(att)
+    #     y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+    #     y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
+    #
+    #     # output projection
+    #     y = self.resid_drop(self.proj(y))
+    #     return

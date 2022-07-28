@@ -95,3 +95,19 @@ $v_1 = \mu_b,v_3 = \mu_b - \mu_c,v_2 = 0$
 (c)实现不带training的finetuning
 
 (d)
+
+执行第二行的代码后获得的准确率：
+
+![image-20220727182928876](assignment5.assets/image-20220727182928876.png)
+
+在london baseline上的表现情况如图：
+
+![image-20220727183316597](assignment5.assets/image-20220727183316597.png)
+
+(e):**Define a** **span corruption** **function for pretraining.**
+
+(f)：最终的结果为：
+
+![image-20220727225541790](assignment5.assets/image-20220727225541790.png)
+
+(g):

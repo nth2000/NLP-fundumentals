@@ -56,12 +56,11 @@ Don't change above here; write your code below
 if args.variant == 'vanilla':
     model = model.GPT(mconf)   #在默认情况下addctive=false
     model = model.to(device)
-    #pass
-    # TODO [part c]: Make some model here
 elif args.variant == 'synthesizer':
-    #mconf.additsive = True
-    #model_ = model.GPT(mconf)
-    pass # TODO [part g]: Make some other model here
+    mconf.additive = True
+    model = model.GPT(mconf)
+    model = model.to(device)
+    #pass # TODO [part g]: Make some other model here
 
 # From here on, your code should be identical independent of which
 # variant (vanilla or synthesizer) has been chosen.

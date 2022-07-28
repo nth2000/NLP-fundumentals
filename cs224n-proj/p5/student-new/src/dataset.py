@@ -186,13 +186,13 @@ class CharCorruptionDataset(Dataset):
         # print(len(suffix))
         assert len(prefix) >= 0 and len(masked_content) > 0 and len(suffix) >= 0
         masked_string = prefix + self.MASK_CHAR + suffix + self.MASK_CHAR + masked_content
-        pad_len = self.block_size - len(masked_string) + 1
+        pad_len = self.block_size - len(masked_string)
         for i in range(pad_len): masked_string += self.PAD_CHAR
         x = masked_string[:-1]  #去除最后一个character
         y = masked_string[1:]   #去除第一个character
         x = torch.tensor([self.stoi[z] for z in x])
         y = torch.tensor([self.stoi[z] for z in y])
-        assert len(x) == self.block_size and len(y) == self.block_size
+        assert len(x) == self.block_size  - 1 and len(y) == self.block_size - 1
         return x,y
 
 
