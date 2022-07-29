@@ -110,4 +110,28 @@ $v_1 = \mu_b,v_3 = \mu_b - \mu_c,v_2 = 0$
 
 ![image-20220727225541790](assignment5.assets/image-20220727225541790.png)
 
-(g):
+(g):最终结果如图
+
+![image-20220728191100206](assignment5.assets/image-20220728191100206.png)
+
+![image-20220728191857874](assignment5.assets/image-20220728191857874.png)
+
+## **Considerations in pretrained knowledge**
+
+![image-20220728192131166](assignment5.assets/image-20220728192131166.png)
+
+相对预训练模型，能使得模型学到更general的语义知识，非预训练模型参数随机初始化不包含对下游任务通用语义方面的学习。
+
+![image-20220728193245602](assignment5.assets/image-20220728193245602.png)
+
+![image-20220728192255600](assignment5.assets/image-20220728192255600.png)
+
+缺乏可解释性或推理依据导致用户可能不会相信模型的决策。
+
+![image-20220728193206374](assignment5.assets/image-20220728193206374.png)
+
+![image-20220728192536827](assignment5.assets/image-20220728192536827.png)
+
+观察该person name的表示与预训练资料中哪个person name的表示最接近，使用这个最接近person name的居住地作为答案。
+
+这可能导致模型具有某些偏见或bias，即看到哪些人名字就倾向于将其预测成某个地方，而实际上名字和地点并无明确关联。

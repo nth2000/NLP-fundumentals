@@ -145,3 +145,119 @@ output layer:
 attention visualization:每行为query一个单词，每列为context中一个单词。每格点表示一个相似性：
 
 ![image-20220728001746541](Lecuture11 Question Answering.assets/image-20220728001746541.png)
+
+## BERT for reading Comprehension
+
+将BERT用于QA很直观。
+
+设问题为segment A,Passage为segment B。将[CLS]+A+[SEP]+B送入BERT模型中，预测start和end token的位置。如图所示：
+
+![image-20220728183317054](Lecuture11 Question Answering.assets/image-20220728183317054.png)
+
+其中$h_i$为每个context word对应的隐藏embedding
+
+一个huge success,ROBERTA,ALBERT在更大型的语料中训练：
+
+![image-20220728183548867](Lecuture11 Question Answering.assets/image-20220728183548867.png)
+
+## 比较BIDAF和BERT模型
+
+BERT模型参数较大（110M或330M）但是BIDAF只有2.5M参数。
+
+BIDAF基于LSTM，BERT基于Transformer。
+
+BERT是经过预训练的，**但是BIDAF只是基于GLOVE词向量的，其余参数都需要从数据集中训练**
+
+注意到BIDAF MODEL和BERT模型都使用了注意力机制，它们是否在本质上是相同的呢？
+
+BIDAF模型主要是建模问题和文章间的交互。而BERT模型中进行了如下四个：
+
+![image-20220728185610931](Lecuture11 Question Answering.assets/image-20220728185610931.png)
+
+同时也有工作_Clark and Gardner, 2018_（BERT之前）表明加入attention(P,P)的机制**也能提高一定的performance**
+
+## 更好的预训练目标
+
+### Span Bert
+
+可以mask掉连续的span，而不是随机mask 15%的随机单词。并利用span的两个端点来预测中间的span（这就将span的信息压缩到它的两个端点）
+
+![image-20220728190231814](Lecuture11 Question Answering.assets/image-20220728190231814.png)
+
+如图所示：
+
+![image-20220728190246181](Lecuture11 Question Answering.assets/image-20220728190246181.png)
+
+**span performance**
+
+模型告诉我们，即使不增加模型大小，不增加数据大小。通过设置更好的训练目标也能在阅读理解和QA中取得更好结果。
+
+![image-20220728190546296](Lecuture11 Question Answering.assets/image-20220728190546296.png)
+
+## Is reading comprehension solved?
+
+现有系统还是在一些**外领域的问题或adversarial example**上表现较差。如图所示，在原有的段落中加入蓝色的句子之后，与该问题在词汇表面有较大的关联。**很多当时的系统给出错误的答案**
+
+![image-20220728190837167](Lecuture11 Question Answering.assets/image-20220728190837167.png)
+
+在一个数据集上训练的模型通常不能很好地泛化到其他dataset中。
+
+![image-20220728191003237](Lecuture11 Question Answering.assets/image-20220728191003237.png)
+
+_Beyond Accuracy: Behavioral Testing of NLP Models with CheckList_
+
+文章给出了不同测试类型下BERT模型的错误率。
+
+![image-20220728194440894](Lecuture11 Question Answering.assets/image-20220728194440894.png)
+
+![image-20220728194505704](Lecuture11 Question Answering.assets/image-20220728194505704.png)
+
+## Open-domain QA
+
+在开放域问答中，我们没有一个passage。但是又一个很大的文档集合，不知道answer处于哪个位置。是一个更有挑战性的，更实际的问题。
+
+**retriever-reader framework**
+
+检索器负责从大量文档中检索可能存在问题答案的文档，reader模型阅读所有的document并返回答案。形式化的：
+
+![image-20220728195152613](Lecuture11 Question Answering.assets/image-20220728195152613.png)
+
+![image-20220728195214051](Lecuture11 Question Answering.assets/image-20220728195214051.png)
+
+![image-20220728195328417](Lecuture11 Question Answering.assets/image-20220728195328417.png)
+
+_Latent Retrieval for Weakly Supervised Open Domain Question Answering_
+
+使用BERT模型将text编码成一个向量
+
+retriever score = 问题表示和文章表示的点积
+
+并联合训练BERT文章编码模型和阅读理解器。
+
+![image-20220728195733877](Lecuture11 Question Answering.assets/image-20220728195733877.png)
+
+_Dense passage retrieval_
+
+![image-20220728195918999](Lecuture11 Question Answering.assets/image-20220728195918999.png)
+
+提出了一个可训练的检索器。使用quesion,answer的对来训练。
+
+**Dense retrieval + generative models**
+
+不抽取答案，而是**生成答案**
+
+**Large language models can do open-domain QA well**
+
+使用大型语言模型(T5等)，尝试finetune这些模型。**不使用检索**
+
+**Maybe the reader model is not necessary too!**
+
+将所有短语使用dense vector来表示，并使用最近邻搜索策略直接寻求答案。非常快速！
+
+![image-20220728200558552](Lecuture11 Question Answering.assets/image-20220728200558552.png)
+
+一种类型DADASET：问题和段落内容在词语上很多的重合线索，模型能很好地利用
+
+DROP数据集：语义方面的问题。
+
+语言模型的除偏很重要。
