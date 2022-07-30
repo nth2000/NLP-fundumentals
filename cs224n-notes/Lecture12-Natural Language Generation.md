@@ -231,3 +231,74 @@ $$
 
 ### Content overlap metrics
 
+为生成的文本和gold的文本之间的相似性计算一个分数。通常有两种形式：基于n-gram的的指标和基于semantic重叠的指标。
+
+#### N-Gram重合指标
+
+这种指标针对MT任务已经不太适合了。
+
+更不适合于**更加开放的任务**。例如在摘要任务中生成的长文本很难用这些指标衡量，在对话任务中对一种情景通常会有很多不同的回复。
+
+同时这种指标的衡量结果**没有语义上的关联**![image-20220730101851258](Lecture12-Natural Language Generation.assets/image-20220730101851258.png)
+
+#### Semantic Overlap
+
+![image-20220730102204594](Lecture12-Natural Language Generation.assets/image-20220730102204594.png)
+
+### Model-based metrics
+
+使用单词和句子的表示(embedding)来计算生成文本和参考文本的相似性。不需要计算文本之间单词级别的match。
+
+**word distance function**
+
+![image-20220730102559067](Lecture12-Natural Language Generation.assets/image-20220730102559067.png)
+
+**Beyond word maching**
+
+![image-20220730102817240](Lecture12-Natural Language Generation.assets/image-20220730102817240.png)
+
+### human-eval
+
+上述自动评估策略通常不能很好match人类评估。
+
+![image-20220730103329279](Lecture12-Natural Language Generation.assets/image-20220730103329279.png)
+
+存在的问题：
+
+![image-20220730103854036](Lecture12-Natural Language Generation.assets/image-20220730103854036.png)
+
+**learning from human feedbacks**
+
+![image-20220730104033978](Lecture12-Natural Language Generation.assets/image-20220730104033978.png)
+
+### 总结
+
+content overlap metrics：一个很好的起点但是指标本身并不好衡量NLG文本
+
+model-based metrics:能和hunman judgement关联但是**不可解释**
+
+human eval:不一致性问题严重
+
+![image-20220730104414742](Lecture12-Natural Language Generation.assets/image-20220730104414742.png)
+
+## Ethical Considerations
+
+微软tay事件：!https://www.163.com/mobile/article/BJ8P2N060011665S.html
+
+**Ethics: Biases in text generation models**
+
+语言模型可能从大型的语料库中**学习到一些有害的模式**。于是语言模型被prompt这些信息时它们倾向于重复这些东西。
+
+![image-20220730105230993](Lecture12-Natural Language Generation.assets/image-20220730105230993.png)
+
+**Hidden Biases: Universal adversarial triggers**
+
+预训练语言模型不可解释性意味着我们不能知道他学到的信息在其内部时如何编码的。有研究工作表明一些adversial的输入就能**触发非常严重的toic content**。很容易被恶意用户所利用。
+
+![image-20220730105511675](Lecture12-Natural Language Generation.assets/image-20220730105511675.png)
+
+**Hidden Biases: Triggered innocuously**
+
+看似无害的文本输入也有可能引发预训练语言模型的一些有害输出。
+
+![image-20220730105848404](Lecture12-Natural Language Generation.assets/image-20220730105848404.png)
