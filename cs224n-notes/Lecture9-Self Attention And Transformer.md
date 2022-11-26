@@ -32,7 +32,7 @@ $O(sequence \ length)$才能使得单词对进行交互。
 
 ![image-20220725123537306](Lecture9-Self Attention And Transformer.assets/image-20220725123537306.png)
 
-word window可用于融合local context.对于长距离依赖而言，**通过堆叠窗口层能够促使距离较远单词间的交互。**例如如图所示，$h_2$和$h_T$在通过一层窗口层后无法完成交互，但是经过两层后（图最上方的红色表示）就包含了两者的交互信息。
+word window可用于融合local context.对于长距离依赖而言，**通过堆叠窗口层能够促使距离较远单词间的交互。**例如如图所示，$h_2$和$h_T$在通过一层窗口层后无法完成交互，但是经过两层后（图最上方的红色表示）就包含了**两者的交互信息**。
 
 ![image-20220725124248615](Lecture9-Self Attention And Transformer.assets/image-20220725124248615.png)
 
@@ -54,7 +54,9 @@ attention机制中对每个单词有query$q_1 ,\cdots q_T$,表明**当前单词�
 
 **Attention和fully connected layer的不同之处**
 
-- attenttion能学习到dynamic interaction weights.该weight**能够随着输入的变化而变化**。是不固定的
+- attenttion能学习到dynamic interaction weights.该weight**能够随着输入的变化而变化**。是不固定的（动态词向量）
+  - 但**忽略了位置信息**
+
 
 如果考虑将self.attention作为我们上述提到的Buliding block，即通过上述公式的计算一次称为一层，堆叠多层。例如下图堆叠了三层得到结果：
 
@@ -178,7 +180,7 @@ $$
 
 ### Layer Normalization
 
-在模型数据前向传播的过程中会有较大的uninformative variation，通过**标准化**层输出来尽可能削减这些无用信息。文献Xu el2019指出Layernorm的成功主要归功于**他将梯度进行了归一化**
+在模型数据前向传播的过程中会有较大的uninformative variation，通过**标准化**层输出来尽可能削减这些无用信息（方差）。文献Xu el2019指出Layernorm的成功主要归功于**他将梯度进行了归一化**
 
 设$x  \in R^d$是模型中的一个向量，求其每个分量和的平均值：
 $$

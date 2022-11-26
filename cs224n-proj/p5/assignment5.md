@@ -1,4 +1,4 @@
-# assignment5
+# Assignment5
 
 ## Attention Mechnism
 
@@ -127,6 +127,8 @@ $v_1 = \mu_b,v_3 = \mu_b - \mu_c,v_2 = 0$
 ![image-20220728192255600](assignment5.assets/image-20220728192255600.png)
 
 缺乏可解释性或推理依据导致用户可能不会相信模型的决策。
+
+PS：Lecture14中表明有研究当made-up时给出的confidence会很低。
 
 ![image-20220728193206374](assignment5.assets/image-20220728193206374.png)
 

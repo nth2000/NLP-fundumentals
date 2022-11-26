@@ -98,7 +98,110 @@ The ticket的后面实际上是省略了of the concert这与concert存在复指�
 
 ## 四种共指解析模型
 
+### 基于规则的算法
+
+称为Hobb算法。是一种传统的代词anaphora共指解析算法。
+
+在深度学习方法出来之前Hobb算法**一直被用于基于机器学习算法的特征之一**
+
+**Knowledge-based Pronominal Coreference**
+
+如果共指解析系统不去理解上下文那么**极有可能造成错误结果**![image-20220731122825327](Lecture13-共指解析.assets/image-20220731122825327.png)
+
+如图所示，it需根据full还是empty来决定指代的是pitcher还是cup即需要根据上下文选择they的先行词。而上述基于规则的Hobb算法对这两种句子输出相同的结果，这是由于两句话**具有相同的句法结构**。
+
+上述挑战称之为**Winograd Schema**，作为图灵测试的另一种替代方式。![image-20220731123352918](Lecture13-共指解析.assets/image-20220731123352918.png)
+
+### 基于Mention-pair的算法
+
+对每个mention pair$m_i,m_j$赋予一个概率$p(m_i,m_j)$。例如对下面这句话中的she查看所有的先行词并决定他和哪个构成共指关系。
+
+![image-20220731124035317](Lecture13-共指解析.assets/image-20220731124035317.png)
+
+希望正例的概率尽可能大，负例的概率尽可能小。
+
+![image-20220731124209796](Lecture13-共指解析.assets/image-20220731124209796.png)
+
+![image-20220731124218902](Lecture13-共指解析.assets/image-20220731124218902.png)
+
+**Training Objective**
+
+设文本中有N个mention，在数据集中，如果两个mention$m_i,m_j$是正例则$y_{ij} = 1$否则$y_{ij} = -1$。只需要利用交叉熵损失建立目标函数：
+
+![image-20220731124446942](Lecture13-共指解析.assets/image-20220731124446942.png)
+
+**Testing**
+
+在测试阶段如果$p(m_i,m_j)$超出某个阈值则认为两者存在共指关系。
+
+再计算传递闭包即可实现聚类。
+
+算法的劣势很显然，如果犯了一个错误那么在计算传递闭包后可能将两个类合并成很大的一个。
+
+![image-20220731124948330](Lecture13-共指解析.assets/image-20220731124948330.png)
 
 
 
+### 基于mention-ranking的算法
 
+通常情况下距离当前mention较远的mention不构成共指关系了，并且通常情况下一个mention仅有一个明确的先行词，但是我们模型确预测除了全部。我们可以仅让模型预测一个先行词（分数最高的）。
+
+我们可以在文本最前面添加一个NA让这些词指向它以表明当前的mention不与前面的任何东西构成共指关系。
+
+![image-20220731130117787](Lecture13-共指解析.assets/image-20220731130117787.png)
+
+可以设计基于softmax的目标函数，对一个mention与其构成正例的mention模型需要赋予其中至少一个较大的概率。
+
+![image-20220731130358742](Lecture13-共指解析.assets/image-20220731130358742.png)
+
+训练只需最大化目标函数目标函数：
+
+![image-20220731130632025](Lecture13-共指解析.assets/image-20220731130632025.png)
+
+$p(m_j,m_i)$如何**计算呢？**
+
+统计分类器，神经网络，LSTM，Transformer等
+
+**non-neutral coref models:Features**(略)
+
+**neutral coref model:**
+
+![image-20220731131621754](Lecture13-共指解析.assets/image-20220731131621754.png)
+
+additional feature：两个mention之间距离之类的信息。
+
+## Learning Character-level Representations for Part-of Speech Tagging
+
+与传统word-embedding不同，在字符级别的维度上进行卷积进而获取单词的嵌入表示可以有效解决Out-of-vocab的问题。
+
+![image-20220731133523877](Lecture13-共指解析.assets/image-20220731133523877.png)
+
+可以将其与word2vec联合使用。
+
+## 端到端的神经网络共指解析器（基于BI-LSTM）
+
+- 编码：词嵌入+上述字符嵌入
+- 输入BI-LSTM
+- 考虑**一定长度范围内的所有span**
+
+![image-20220731140654874](Lecture13-共指解析.assets/image-20220731140654874.png)
+
+每个span的表示：使用开头，结尾和span本身基于注意力的表示。加之一些额外的特征。
+
+![image-20220731140741162](Lecture13-共指解析.assets/image-20220731140741162.png)
+
+![image-20220731140807043](Lecture13-共指解析.assets/image-20220731140807043.png)
+
+注意这里的注意力分数是使用span中最后一个单词的表示进行的。最后，计算每个span是否是一个mention的分数$s_m(i)$，两个span是否是共指关系$s_a(i,j)$。
+
+![image-20220731141237821](Lecture13-共指解析.assets/image-20220731141237821.png)
+
+两个span最终是否是共指关系，考虑span是否是mention且两个span是否是共指代的关系。因此最终分数为三部分求和：
+$$
+s(i,j) = s_m(i) + s_m(j) + s_a(i,j)
+$$
+注意模型的计算复杂性较高，于是**需要进行剪枝（例如限制span长度）**。attention机制的引入表明span中哪些单词是最重要的，最有代表性的。
+
+## 基于BERT的共指解析
+
+![image-20220731141626658](Lecture13-共指解析.assets/image-20220731141626658.png)

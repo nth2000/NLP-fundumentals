@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="633fbd48-444b-4958-96a7-3fc2d0f9b461" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../cs224n-notes/Lecture5-语言模型和RNN.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../cs224n-notes/Lecture5-语言模型和RNN.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../cs224n-notes/Lecture13-共指解析.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../cs224n-notes/Lecture13-共指解析.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../p5/assignment5.md" beforeDir="false" afterPath="$PROJECT_DIR$/../p5/assignment5.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../cs224n-slides/cs224n-2021-lecture13-coref.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/../../cs224n-slides/cs224n-2021-lecture13-coref.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../cs224n-slides/cs224n-2021-lecture14-t5.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/../../cs224n-slides/cs224n-2021-lecture14-t5.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../cs224n-slides/cs224n-2021-lecture15-lm.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/../../cs224n-slides/cs224n-2021-lecture15-lm.pdf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,5 +48,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
